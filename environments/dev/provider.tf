@@ -6,14 +6,14 @@ terraform {
     }
   }
   backend "azurerm" {
-    resource_group_name  = "rg-devopsinsiders"
-    storage_account_name = "twostates"
-    container_name       = "tfstate"
-    key                  = "dev.tfstate"
+    resource_group_name  = "Pawan_Argocd"
+    storage_account_name = "argocdtodotest"
+    container_name       = "argocd"
+    key                  = "argocd.tfstate"
   }
 }
 
 provider "azurerm" {
   features {}
-  subscription_id = "1075ec7a-b17a-4f37-bf3f-9d68c4506dc1"
+  subscription_id = "6dbc33a2-5da4-4090-8ac2-b8dde7d2a834"
 }

@@ -1,71 +1,97 @@
 name: "Dev Terraform Workflow"
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main      
+  pull_request:
+    branches:
+      - main
 
 permissions:
-  id-token: write
+  id-token: write     # Required for OIDC login
   contents: read
-  
+
 jobs: 
   terraform-init-plan:
-    runs-on: self-hosted
+    name: "Terraform Init & Plan"
+    runs-on: ubuntu-latest       # ✅ OIDC works best on GitHub-hosted runners
     steps: 
-      - name: Checkout
-        uses: actions/checkout@v5.0.0
-    
-      - name: Azure Login
-        uses: Azure/login@v2.3.0
+      - name: Checkout code
+        uses: actions/checkout@v4    # ✅ v5.0.0 is still pre-release; v4 is stable
+
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2         # ✅ use major v2 (auto-updates minor fixes)
         with:
           client-id: 82433715-b246-483c-9069-ffbf12118360
           tenant-id: 96ceb0b6-7eea-404f-9b4c-e333bab1b450
           subscription-id: 6dbc33a2-5da4-4090-8ac2-b8dde7d2a834
-          auth-type: oidc
-            
-      - name: Terraform fmt
+          auth-type: oidc            # ✅ lowercase, correct format
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8   # ✅ specify version for consistency
+
+      - name: Terraform Format Check
         id: fmt
         run: terraform fmt -check
-        continue-on-error: true
         working-directory: environments/dev
-        
+        continue-on-error: true
+
       - name: Terraform Init
         id: init
-        run: terraform init -input=false  
+        run: terraform init -input=false
         working-directory: environments/dev
 
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
         working-directory: environments/dev        
-      
+
       - name: Terraform Plan
         id: plan
-        run: terraform plan -no-color -input=false
+        run: terraform plan -no-color -input=false -out=tfplan
+        working-directory: environments/dev
         continue-on-error: true
-        working-directory: environments/dev    
         
+      - name: Upload Plan (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: environments/dev/tfplan
+
+
   terraform-apply:    
-    runs-on: self-hosted
+    name: "Terraform Apply"
+    runs-on: ubuntu-latest       # ✅ use GitHub-hosted for OIDC simplicity
     if: github.ref == 'refs/heads/main'
     needs: terraform-init-plan
     environment: dev
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5.0.0
+      - name: Checkout code
+        uses: actions/checkout@v4
     
-      - name: Azure Login
-        uses: Azure/login@v2.3.0
+      - name: Azure Login (OIDC)
+        uses: azure/login@v2
         with:
           client-id: 82433715-b246-483c-9069-ffbf12118360
           tenant-id: 96ceb0b6-7eea-404f-9b4c-e333bab1b450
-          subscription-id: 6dbc33a2-5da4-4090-8ac2-b8dde7d2a834  
+          subscription-id: 6dbc33a2-5da4-4090-8ac2-b8dde7d2a834
           auth-type: oidc
           
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+      - name: Download Plan (artifact)
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan
+          path: environments/dev
+
       - name: Terraform Init
         id: init
         run: terraform init -input=false  
@@ -73,7 +99,5 @@ jobs:
 
       - name: Terraform Apply
         id: apply
-        run: terraform apply --auto-approve
-        continue-on-error: true
-        working-directory: environments/dev              
-          
+        run: terraform apply -auto-approve tfplan
+        working-directory: environments/dev

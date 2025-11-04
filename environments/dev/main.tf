@@ -1,17 +1,16 @@
 locals {
   common_tags = {
-    "ManagedBy"   = "Terraform"
-    "Owner"       = "TodoAppTeam"
-    "Environment" = "pawan"
+    ManagedBy   = "Terraform"
+    Environment = "dev"
+    Owner       = "TodoTeam"
   }
 }
 
 
-module "rg" {
-  source      = "../../modules/azurerm_resource_group"
-  rg_name     = "pawan_Argocd1"
-  rg_location = "centralindia"
-  rg_tags     = local.common_tags
+module "resource_groups" {
+  source = "../../modules/resource_group"
+  rgs    = var.rgs
+  tags   = local.common_tags
 }
 
 module "acr" {
@@ -44,13 +43,10 @@ module "sql_db" {
 }
 
 module "aks" {
-  depends_on = [module.rg]
-  source     = "../../modules/azurerm_kubernetes_cluster"
-  aks_name   = "aks-pawan-todoapp"
-  location   = "centralindia"
-  rg_name    = "pawan_Argocd1"
-  dns_prefix = "aks-pawan-todoapp"
-  tags       = local.common_tags
+  source = "../../modules/aks"
+
+  aks_clusters = var.aks_clusters
+  common_tags  = var.common_tags
 }
 
 

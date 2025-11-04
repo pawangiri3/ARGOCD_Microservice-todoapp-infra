@@ -8,16 +8,26 @@ locals {
 
 module "rg" {
   source      = "../../modules/azurerm_resource_group"
-  rg_name     = "rg-prod-todoapp"
-  rg_location = "centralindia"
+  rgs = {
+    rg1 = {
+      name     = "rg-prod-todoapp"
+      location = "centralindia"
+    }
+  }
   rg_tags     = local.common_tags
+  common_tags = local.common_tags
 }
 
 module "rg1" {
   source      = "../../modules/azurerm_resource_group"
-  rg_name     = "rg-prod-todoapp-1"
-  rg_location = "centralindia"
+  rgs = {
+    rg2 = {
+      name     = "rg-prod-todoapp-1"
+      location = "centralindia"
+    }
+  }
   rg_tags     = local.common_tags
+  common_tags = local.common_tags
 }
 
 module "acr" {
@@ -52,11 +62,21 @@ module "sql_db" {
 module "aks" {
   depends_on = [module.rg]
   source     = "../../modules/azurerm_kubernetes_cluster"
-  aks_name   = "aks-prod-todoapp"
-  location   = "centralindia"
-  rg_name    = "rg-prod-todoapp"
-  dns_prefix = "aks-prod-todoapp"
-  tags       = local.common_tags
+  aks_clusters = {
+    aks1 = {
+      aks_name   = "aks-prod-todoapp"
+      location   = "centralindia"
+      rg_name    = "rg-prod-todoapp"
+      dns_prefix = "aks-prod-todoapp"
+      default_node_pool = {
+        name       = "default"
+        node_count = 1
+        vm_size    = "Standard_DS2_v2"
+      }
+      tags = local.common_tags
+    }
+  }
+  common_tags = local.common_tags
 }
 
 

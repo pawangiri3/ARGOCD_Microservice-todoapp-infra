@@ -28,7 +28,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.9.8  # or use "latest"
+          terraform_version: latest # or use "latest"
 
       - name: Terraform fmt
         id: fmt
@@ -71,7 +71,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.9.8  # or use "latest"
+          terraform_version: latest  # or use "latest"
          
       - name: Terraform Init
         id: init

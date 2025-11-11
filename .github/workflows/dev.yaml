@@ -76,8 +76,8 @@ jobs:
         working-directory: environments/dev              
 
           
-  terraform-destroy:    
-    runs-on: self-hosted
+  # terraform-destroy:    
+  #   runs-on: self-hosted
     # if: github.ref == 'refs/heads/main'
     # #needs: terraform-init-plan
     # environment: dev

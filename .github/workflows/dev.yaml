@@ -32,9 +32,9 @@ jobs:
         continue-on-error: true
         working-directory: environments/dev
         
-      - name: Terraform Init
+      - name: Terraform Init (with backend reconfigure)
         id: init
-        run: terraform init -input=false -reconfigure 
+        run: terraform init -input=false -reconfigure -upgrade
         working-directory: environments/dev
 
       - name: Terraform Validate

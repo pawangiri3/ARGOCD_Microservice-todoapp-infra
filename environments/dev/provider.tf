@@ -6,9 +6,9 @@ terraform {
     }
   }
   backend "azurerm" {
-    resource_group_name  = "Pawan_Argocd"
-    storage_account_name = "argocdtodotest"
-    container_name       = "argocd"
+    resource_group_name  = "DoNotDeleteRg"
+    storage_account_name = "donotdeletestorage2025"
+    container_name       = "tfstate"
     key                  = "argocd.tfstate"
   }
 }

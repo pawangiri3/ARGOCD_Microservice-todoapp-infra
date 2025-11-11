@@ -13,73 +13,45 @@ permissions:
   contents: read
   
 jobs: 
-  # terraform-init-plan:
-  #   runs-on: self-hosted
-  #   steps: 
-  #     - name: Checkout
-  #       uses: actions/checkout@v5.0.0
+  terraform-init-plan:
+    runs-on: self-hosted
+    steps: 
+      - name: Checkout
+        uses: actions/checkout@v5.0.0
     
-  #     - name: Azure Login
-  #       uses: Azure/login@v2.3.0
-  #       with:
-  #         client-id: 82433715-b246-483c-9069-ffbf12118360
-  #         tenant-id: 96ceb0b6-7eea-404f-9b4c-e333bab1b450
-  #         subscription-id: 6dbc33a2-5da4-4090-8ac2-b8dde7d2a834
+      - name: Azure Login
+        uses: Azure/login@v2.3.0
+        with:
+          client-id: 82433715-b246-483c-9069-ffbf12118360
+          tenant-id: 96ceb0b6-7eea-404f-9b4c-e333bab1b450
+          subscription-id: 6dbc33a2-5da4-4090-8ac2-b8dde7d2a834
             
-  #     - name: Terraform fmt
-  #       id: fmt
-  #       run: terraform fmt -check
-  #       continue-on-error: true
-  #       working-directory: environments/dev
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
+        working-directory: environments/dev
         
-  #     - name: Terraform Init
-  #       id: init
-  #       run: terraform init -input=false  
-  #       working-directory: environments/dev
+      - name: Terraform Init
+        id: init
+        run: terraform init -input=false  
+        working-directory: environments/dev
 
-  #     - name: Terraform Validate
-  #       id: validate
-  #       run: terraform validate -no-color
-  #       working-directory: environments/dev        
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        working-directory: environments/dev        
       
-  #     - name: Terraform Plan
-  #       id: plan
-  #       run: terraform plan -no-color -input=false
-  #       continue-on-error: true
-  #       working-directory: environments/dev    
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -input=false
+        continue-on-error: true
+        working-directory: environments/dev    
         
-  # terraform-apply:    
-  #   runs-on: self-hosted
-  #   if: github.ref == 'refs/heads/main'
-  #   needs: terraform-init-plan
-  #   environment: dev
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v5.0.0
-    
-  #     - name: Azure Login
-  #       uses: Azure/login@v2.3.0
-  #       with:
-  #         client-id: 82433715-b246-483c-9069-ffbf12118360
-  #         tenant-id: 96ceb0b6-7eea-404f-9b4c-e333bab1b450
-  #         subscription-id: 6dbc33a2-5da4-4090-8ac2-b8dde7d2a834
-          
-  #     - name: Terraform Init
-  #       id: init
-  #       run: terraform init -input=false  
-  #       working-directory: environments/dev
-
-  #     - name: Terraform Apply
-  #       id: apply
-  #       run: terraform apply --auto-approve
-  #       continue-on-error: true
-  #       working-directory: environments/dev              
-
-          
-  terraform-destroy:    
+  terraform-apply:    
     runs-on: self-hosted
     if: github.ref == 'refs/heads/main'
-    #needs: terraform-init-plan
+    needs: terraform-init-plan
     environment: dev
     steps:
       - name: Checkout
@@ -97,8 +69,36 @@ jobs:
         run: terraform init -input=false  
         working-directory: environments/dev
 
-      # - name: Terraform destroy
-      #   id: apply
-      #   run: terraform destroy --auto-approve
-      #   continue-on-error: true
-      #   working-directory: environments/dev              
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply --auto-approve
+        continue-on-error: true
+        working-directory: environments/dev              
+
+          
+  terraform-destroy:    
+    # runs-on: self-hosted
+    # if: github.ref == 'refs/heads/main'
+    # #needs: terraform-init-plan
+    # environment: dev
+    # steps:
+    #   - name: Checkout
+    #     uses: actions/checkout@v5.0.0
+    
+    #   - name: Azure Login
+    #     uses: Azure/login@v2.3.0
+    #     with:
+    #       client-id: 82433715-b246-483c-9069-ffbf12118360
+    #       tenant-id: 96ceb0b6-7eea-404f-9b4c-e333bab1b450
+    #       subscription-id: 6dbc33a2-5da4-4090-8ac2-b8dde7d2a834
+          
+    #   - name: Terraform Init
+    #     id: init
+    #     run: terraform init -input=false  
+    #     working-directory: environments/dev
+
+    #   # - name: Terraform destroy
+    #   #   id: apply
+    #   #   run: terraform destroy --auto-approve
+    #   #   continue-on-error: true
+    #   #   working-directory: environments/dev              
